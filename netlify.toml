@@ -1,0 +1,54 @@
+[build]
+command = "pnpm run build"
+publish = ".next"
+
+  [build.environment]
+  NEXT_PUBLIC_SUPABASE_URL = "https://oeazytdutwzbffrjxnvu.supabase.co"
+  NEXT_PUBLIC_SUPABASE_ANON_KEY = "sb_publishable_Mq71h21umxM_BnOXEwZkSg_ubD_6HaU"
+
+[[plugins]]
+package = "@netlify/plugin-nextjs"
+
+[[headers]]
+for = "/_next/static/*"
+
+  [headers.values]
+  Cache-Control = "public, max-age=31536000, immutable"
+
+[[redirects]]
+from = "/_next/image"
+to = "/.netlify/images?url=:url&w=:width&q=:quality"
+status = 200
+
+  [redirects.query]
+  url = ":url"
+  w = ":width"
+  q = ":quality"
+
+[[redirects]]
+from = "/_ipx/*"
+to = "/.netlify/images?url=:url&w=:width&q=:quality"
+status = 200
+
+  [redirects.query]
+  url = ":url"
+  w = ":width"
+  q = ":quality"
+
+[context]
+
+  [context.deploy-preview]
+
+    [[context.deploy-preview.headers]]
+    for = "/_next/static/*"
+
+      [context.deploy-preview.headers.values]
+      Cache-Control = "public, max-age=31536000, immutable"
+
+  [context.agent-website-not-visible-1eb3]
+
+    [[context.agent-website-not-visible-1eb3.headers]]
+    for = "/_next/static/*"
+
+      [context.agent-website-not-visible-1eb3.headers.values]
+      Cache-Control = "public, max-age=31536000, immutable"

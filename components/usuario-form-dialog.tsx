@@ -48,6 +48,10 @@ export function UsuarioFormDialog({
     ticket: usuario?.ticket || "",
     lider_solicitante: usuario?.lider_solicitante || "",
   })
+  const initialAccessType = usuario ? (usuario.clave ? "clave" : "aplicacion") : "clave"
+  const [accessType, setAccessType] = useState<"clave" | "aplicacion">(
+    initialAccessType
+  )
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -55,10 +59,15 @@ export function UsuarioFormDialog({
     setError(null)
 
     try {
+      const payload = { ...formData }
+      if (accessType === "aplicacion") {
+        payload.clave = ""
+      }
+
       if (usuario) {
-        await updateUsuario(usuario.id, formData)
+        await updateUsuario(usuario.id, payload)
       } else {
-        await createUsuario(formData)
+        await createUsuario(payload)
       }
       onSuccess()
       onOpenChange(false)
@@ -91,6 +100,7 @@ export function UsuarioFormDialog({
           ticket: "",
           lider_solicitante: "",
         })
+        setAccessType("clave")
       }
     } else if (usuario) {
       setFormData({
@@ -102,6 +112,7 @@ export function UsuarioFormDialog({
         ticket: usuario.ticket,
         lider_solicitante: usuario.lider_solicitante,
       })
+      setAccessType(usuario.clave ? "clave" : "aplicacion")
     }
     onOpenChange(newOpen)
   }
@@ -187,19 +198,44 @@ export function UsuarioFormDialog({
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="clave">Clave de Alarma (4 digitos) *</Label>
+                <Label htmlFor="accessType">Tipo de acceso</Label>
+                <Select
+                  value={accessType}
+                  onValueChange={(value) => {
+                    const v = value as "clave" | "aplicacion"
+                    setAccessType(v)
+                    if (v === "aplicacion") {
+                      setFormData({ ...formData, clave: "" })
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="clave">Clave (4 dígitos)</SelectItem>
+                    <SelectItem value="aplicacion">Aplicación (sin clave)</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Label htmlFor="clave">
+                  {accessType === "clave"
+                    ? "Clave de Alarma (4 dígitos) *"
+                    : "Acceso por Aplicación"}
+                </Label>
                 <Input
                   id="clave"
                   value={formData.clave}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 4)
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 4)
                     setFormData({ ...formData, clave: value })
                   }}
-                  placeholder="0000"
+                  placeholder={accessType === "clave" ? "0000" : "Usa app para acceder"}
                   maxLength={4}
-                  pattern="\d{4}"
-                  inputMode="numeric"
-                  required
+                  pattern={accessType === "clave" ? "\\d{4}" : undefined}
+                  inputMode={accessType === "clave" ? "numeric" : undefined}
+                  required={accessType === "clave"}
+                  disabled={accessType === "aplicacion"}
                   className="font-mono tracking-widest text-center"
                 />
               </div>

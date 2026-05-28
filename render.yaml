@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: jproduction-s-github-io
+    env: node
+    plan: free
+    branch: main
+    buildCommand: corepack pnpm install --allow-builds && corepack pnpm exec next build
+    startCommand: corepack pnpm exec next start
+    envVars:
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        value: https://oeazytdutwzbffrjxnvu.supabase.co
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        value: sb_publishable_Mq71h21umxM_BnOXEwZkSg_ubD_6HaU
+      - key: NODE_ENV
+        value: production
